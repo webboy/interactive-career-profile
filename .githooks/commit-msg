@@ -17,9 +17,11 @@ Commit message does not follow Conventional Commits.
 
 Expected format:
   <type>[optional scope]: <description>
+  <type>[optional scope]: <description> (ICP-###)
 
 Examples:
   feat: add hero section
+  feat(infra): bootstrap monorepo and docker compose stack (ICP-007)
   fix(nav): correct mobile menu overlap
   chore: update gitignore
 

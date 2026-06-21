@@ -129,12 +129,20 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/en/
 <type>[optional scope]: <description>
 ```
 
-Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-
-Example:
+When a commit belongs to a tracked task, include the task ID at the end of the subject line:
 
 ```text
-feat(profile): add interactive timeline section
+<type>[optional scope]: <description> (ICP-###)
+```
+
+Common types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+
+Examples:
+
+```text
+feat(infra): bootstrap monorepo and docker compose stack (ICP-007)
+feat(profile): add interactive timeline section (ICP-011)
+chore: update gitignore
 ```
 
 ### Git Hooks (Optional)
