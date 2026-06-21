@@ -35,7 +35,13 @@ services:
     environment:
       PORT: 8000
       DATABASE_URL: postgresql+psycopg://icp:icp@postgres:5432/icp
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: icp
+      DATABASE_NAME: icp
       MCP_URL: http://mcp:8100
+    volumes:
+      - ./apps/api:/app
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,36 +1,37 @@
-"""Minimal API placeholder for local Docker bootstrap."""
+from contextlib import asynccontextmanager
 
-from __future__ import annotations
+from fastapi import FastAPI
 
-import json
-import os
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
-
-class HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self) -> None:
-        if self.path in ("/", "/health"):
-            body = json.dumps({"status": "ok", "service": "api"}).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-            return
-
-        self.send_response(404)
-        self.end_headers()
-
-    def log_message(self, format: str, *args: object) -> None:
-        return
+from app.api.routes.health import router as health_router
+from app.core.config import get_settings
+from app.core.version import API_VERSION
+from app.db.session import close_engine, get_session_factory
+from app.services.version import sync_api_version
 
 
-def main() -> None:
-    port = int(os.environ.get("PORT", "8000"))
-    server = HTTPServer(("0.0.0.0", port), HealthHandler)
-    print(f"API placeholder listening on {port}", flush=True)
-    server.serve_forever()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    settings = get_settings()
+    app.state.settings = settings
+
+    session_factory = get_session_factory()
+    async with session_factory() as session:
+        await sync_api_version(session)
+
+    yield
+
+    await close_engine()
 
 
-if __name__ == "__main__":
-    main()
+def create_app() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(
+        title=settings.app_name,
+        version=API_VERSION,
+        lifespan=lifespan,
+    )
+    app.include_router(health_router)
+    return app
+
+
+app = create_app()

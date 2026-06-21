@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is currently in bootstrap. The local Docker monorepo foundation exists, but real FastAPI, Quasar, database models, and MVP features are still planned for later tasks.
+The project is in early implementation. The API backend foundation (FastAPI, settings, SQLAlchemy, Alembic, pgvector bootstrap, version storage) is in place; UI, MCP tools, and MVP features remain planned.
 
 ## What This Is
 
@@ -53,7 +53,7 @@ Planned local URLs:
 - UI: `http://localhost:9000`
 - API: `http://localhost:8000`
 - MCP: `http://localhost:8100`
-- OpenAPI: planned in backend foundation task at `http://localhost:8000/docs`
+- OpenAPI: `http://localhost:8000/docs`
 
 ## Local Bootstrap
 
@@ -75,18 +75,37 @@ docker compose up --build
 docker compose --profile mail up --build
 ```
 
-4. Verify service placeholders:
+4. Verify services:
 
 - UI health: `http://localhost:9000/health`
-- API health: `http://localhost:8000/health`
+- API health: `http://localhost:8000/health` (includes API version and DB status)
+- OpenAPI docs: `http://localhost:8000/docs`
 - MCP health: `http://localhost:8100/health`
 - Mailpit UI (when enabled): `http://localhost:8025`
+
+## API Backend
+
+The API container runs migrations on startup, then starts FastAPI with Uvicorn.
+
+Run backend tests:
+
+```bash
+docker compose run --rm api pytest
+```
+
+Run migrations manually:
+
+```bash
+docker compose run --rm api alembic upgrade head
+```
+
+Current API version is stored in `system_metadata.api_version` and exposed on `GET /health`.
 
 ## Repository Layout
 
 ```text
 apps/
-  api/      FastAPI backend placeholder
+  api/      FastAPI backend foundation
   mcp/      internal MCP placeholder
   ui/       Quasar UI placeholder
 packages/
