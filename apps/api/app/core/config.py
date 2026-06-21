@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     )
     session_secret: str = Field(default="change-me-session-secret", alias="SESSION_SECRET")
     jwt_secret: str = Field(default="change-me-jwt-secret", alias="JWT_SECRET")
+    auth_cookie_name: str = Field(default="icp_admin_session", alias="AUTH_COOKIE_NAME")
+    auth_cookie_secure: bool = Field(default=False, alias="AUTH_COOKIE_SECURE")
+    auth_cookie_samesite: str = Field(default="lax", alias="AUTH_COOKIE_SAMESITE")
+    auth_token_expires_minutes: int = Field(default=60 * 24 * 7, alias="AUTH_TOKEN_EXPIRES_MINUTES")
     default_language: str = Field(default="en", alias="DEFAULT_LANGUAGE")
     supported_languages: str = Field(default="en,de,sr", alias="SUPPORTED_LANGUAGES")
 

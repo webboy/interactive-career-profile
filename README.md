@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. The API backend foundation (FastAPI, settings, SQLAlchemy, Alembic, pgvector bootstrap, version storage) is in place; UI, MCP tools, and MVP features remain planned.
+The project is in early implementation. Admin auth, settings storage, and Privacy/Terms backend are in place on top of the FastAPI foundation; profile records, RAG, MCP tools, and UI remain planned.
 
 ## What This Is
 
@@ -99,6 +99,32 @@ Run migrations manually:
 docker compose run --rm api alembic upgrade head
 ```
 
+Create the first admin user:
+
+```bash
+docker compose run --rm api python -m app.cli create-admin \
+  --email admin@example.com \
+  --password 'change-me'
+```
+
+Auth endpoints:
+
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+
+Public legal endpoints:
+
+- `GET /api/public/privacy`
+- `GET /api/public/terms`
+
+Admin endpoints (require auth cookie):
+
+- `GET /api/admin/settings`
+- `PUT /api/admin/settings/{key}`
+- `GET /api/admin/legal-pages/{slug}`
+- `PUT /api/admin/legal-pages/{slug}`
+
 Current API version is stored in `system_metadata.api_version` and exposed on `GET /health`.
 
 ## Repository Layout
@@ -120,9 +146,9 @@ docker/     service Dockerfiles
 
 The local Docker MVP is planned as these implementation tasks:
 
-1. Bootstrap monorepo and Docker Compose stack.
-2. Add backend foundation, config, database, Alembic, pgvector, and API versioning.
-3. Add admin auth, settings, and legal backend.
+1. Bootstrap monorepo and Docker Compose stack. **Done**
+2. Add backend foundation, config, database, Alembic, pgvector, and API versioning. **Done**
+3. Add admin auth, settings, and legal backend. **Done**
 4. Add profile and career records backend.
 5. Add file storage and document ingestion.
 6. Add embeddings, custom retrieval, and logging.
@@ -136,7 +162,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.1`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.2`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 
