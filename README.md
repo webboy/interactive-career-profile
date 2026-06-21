@@ -1,2 +1,2 @@
-# -interactive-career-profile
+# interactive-career-profile
 Interactive Career Profile
