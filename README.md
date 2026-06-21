@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is currently in planning/bootstrap. The local MVP roadmap is defined, but application source code has not been implemented yet.
+The project is currently in bootstrap. The local Docker monorepo foundation exists, but real FastAPI, Quasar, database models, and MVP features are still planned for later tasks.
 
 ## What This Is
 
@@ -52,7 +52,50 @@ Planned local URLs:
 
 - UI: `http://localhost:9000`
 - API: `http://localhost:8000`
-- OpenAPI: `http://localhost:8000/docs`
+- MCP: `http://localhost:8100`
+- OpenAPI: planned in backend foundation task at `http://localhost:8000/docs`
+
+## Local Bootstrap
+
+1. Copy environment defaults:
+
+```bash
+cp .env.example .env
+```
+
+2. Start the containerized stack:
+
+```bash
+docker compose up --build
+```
+
+3. Optional: include Mailpit for local SMTP testing:
+
+```bash
+docker compose --profile mail up --build
+```
+
+4. Verify service placeholders:
+
+- UI health: `http://localhost:9000/health`
+- API health: `http://localhost:8000/health`
+- MCP health: `http://localhost:8100/health`
+- Mailpit UI (when enabled): `http://localhost:8025`
+
+## Repository Layout
+
+```text
+apps/
+  api/      FastAPI backend placeholder
+  mcp/      internal MCP placeholder
+  ui/       Quasar UI placeholder
+packages/
+  shared/   shared schemas/types (future)
+data/
+  demo/     demo seed assets (future)
+storage/    local uploads (gitignored except .gitkeep)
+docker/     service Dockerfiles
+```
 
 ## MVP Roadmap
 

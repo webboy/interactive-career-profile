@@ -1,3 +1,10 @@
 docs/
 .cursor/
 memory-bank/
+.env
+storage/*
+!storage/.gitkeep
+node_modules/
+__pycache__/
+*.pyc
+.python-version
