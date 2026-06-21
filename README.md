@@ -136,9 +136,18 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The initial API version will be `0.0.1`, and every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.1`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
-Version storage is planned as part of the backend foundation task.
+Version storage is implemented in the API backend (`system_metadata.api_version`).
+
+## Task Completion Workflow
+
+After every completed task:
+
+1. Update local Memory Bank and task handoff files.
+2. Review and update this `README.md` when the task changed public-facing project status, setup commands, architecture summary, roadmap progress, versioning notes, or workflow conventions.
+3. Bump the API version when backend version storage applies to the change.
+4. Create a git commit. Include the task ID in the subject when the commit belongs to a tracked task, for example `(ICP-010)`.
 
 ## Commit Messages
 
