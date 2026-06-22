@@ -36,3 +36,23 @@ class EmbeddingStatus(StrEnum):
     READY = "ready"
     FAILED = "failed"
     NOT_REQUIRED = "not_required"
+
+
+class DocumentSourceType(StrEnum):
+    UPLOAD = "upload"
+    PASTED_TEXT = "pasted_text"
+
+
+class DocumentStatus(StrEnum):
+    UPLOADED = "uploaded"
+    EXTRACTED = "extracted"
+    CHUNKED = "chunked"
+    FAILED = "failed"
+
+
+class DocumentFileType(StrEnum):
+    PDF = "pdf"
+    DOCX = "docx"
+    TXT = "txt"
+    MARKDOWN = "markdown"
+    TEXT = "text"

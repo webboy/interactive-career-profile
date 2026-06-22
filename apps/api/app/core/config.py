@@ -43,6 +43,9 @@ class Settings(BaseSettings):
 
     filesystem_driver: str = Field(default="local", alias="FILESYSTEM_DRIVER")
     local_storage_path: str = Field(default="./storage/uploads", alias="LOCAL_STORAGE_PATH")
+    document_upload_max_bytes: int = Field(default=10 * 1024 * 1024, alias="DOCUMENT_UPLOAD_MAX_BYTES")
+    document_chunk_size_chars: int = Field(default=1200, alias="DOCUMENT_CHUNK_SIZE_CHARS")
+    document_chunk_overlap_chars: int = Field(default=200, alias="DOCUMENT_CHUNK_OVERLAP_CHARS")
     s3_endpoint: str | None = Field(default=None, alias="S3_ENDPOINT")
     s3_access_key_id: str | None = Field(default=None, alias="S3_ACCESS_KEY_ID")
     s3_secret_access_key: str | None = Field(default=None, alias="S3_SECRET_ACCESS_KEY")

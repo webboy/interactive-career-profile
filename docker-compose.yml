@@ -40,8 +40,10 @@ services:
       DATABASE_USER: icp
       DATABASE_NAME: icp
       MCP_URL: http://mcp:8100
+      LOCAL_STORAGE_PATH: /storage/uploads
     volumes:
       - ./apps/api:/app
+      - ./storage:/storage
     depends_on:
       postgres:
         condition: service_healthy

@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.api.routes.admin_career_records import router as admin_career_records_router
+from app.api.routes.admin_documents import chunk_router as admin_document_chunks_router
+from app.api.routes.admin_documents import router as admin_documents_router
 from app.api.routes.admin_legal import router as admin_legal_router
 from app.api.routes.admin_profile import router as admin_profile_router
 from app.api.routes.admin_settings import router as admin_settings_router
@@ -41,6 +43,8 @@ def create_app() -> FastAPI:
     app.include_router(admin_settings_router)
     app.include_router(admin_profile_router)
     app.include_router(admin_career_records_router)
+    app.include_router(admin_documents_router)
+    app.include_router(admin_document_chunks_router)
     app.include_router(admin_legal_router)
     app.include_router(public_legal_router)
     return app

@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, and profile/career records CRUD are in place on top of the FastAPI foundation; RAG, MCP tools, and UI remain planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, and document ingestion with local file storage are in place on top of the FastAPI foundation; RAG, MCP tools, and UI remain planned.
 
 ## What This Is
 
@@ -134,8 +134,22 @@ Admin endpoints (require auth cookie):
 - `GET /api/admin/career-records/{id}`
 - `PUT /api/admin/career-records/{id}`
 - `DELETE /api/admin/career-records/{id}`
+- `GET /api/admin/documents`
+- `POST /api/admin/documents/upload`
+- `POST /api/admin/documents/text`
+- `GET /api/admin/documents/{id}`
+- `PUT /api/admin/documents/{id}`
+- `DELETE /api/admin/documents/{id}`
+- `POST /api/admin/documents/{id}/extract`
+- `POST /api/admin/documents/{id}/chunk`
+- `POST /api/admin/documents/{id}/retry-ingestion`
+- `POST /api/admin/documents/{id}/request-embedding`
+- `GET /api/admin/documents/{id}/chunks`
+- `PUT /api/admin/document-chunks/{chunk_id}`
 
-Admin list endpoints support optional `visibility` filtering. Career records also support optional `record_type` filtering.
+Admin list endpoints support optional `visibility` filtering. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
+
+Supported upload types: PDF, DOCX, TXT, Markdown. Custom pasted text is also supported.
 
 Current API version is stored in `system_metadata.api_version` and exposed on `GET /health`.
 
@@ -162,7 +176,7 @@ The local Docker MVP is planned as these implementation tasks:
 2. Add backend foundation, config, database, Alembic, pgvector, and API versioning. **Done**
 3. Add admin auth, settings, and legal backend. **Done**
 4. Add profile and career records backend. **Done**
-5. Add file storage and document ingestion.
+5. Add file storage and document ingestion. **Done**
 6. Add embeddings, custom retrieval, and logging.
 7. Add LLM adapter and LangGraph agent.
 8. Add internal MCP tools and email workflows.
@@ -174,7 +188,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.3`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.4`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 
