@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.enums import EmailDeliveryStatus, LeadStatus
 from app.db.base import Base
+from app.db.types import pg_str_enum
 
 
 class MeetingRequest(Base):
@@ -17,17 +18,17 @@ class MeetingRequest(Base):
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
     preferred_times: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[LeadStatus] = mapped_column(
-        Enum(LeadStatus, name="lead_status"),
+        pg_str_enum(LeadStatus, name="lead_status"),
         nullable=False,
         default=LeadStatus.NEW,
     )
     admin_email_status: Mapped[EmailDeliveryStatus] = mapped_column(
-        Enum(EmailDeliveryStatus, name="email_delivery_status"),
+        pg_str_enum(EmailDeliveryStatus, name="email_delivery_status"),
         nullable=False,
         default=EmailDeliveryStatus.PENDING,
     )
     requester_email_status: Mapped[EmailDeliveryStatus] = mapped_column(
-        Enum(EmailDeliveryStatus, name="email_delivery_status"),
+        pg_str_enum(EmailDeliveryStatus, name="email_delivery_status"),
         nullable=False,
         default=EmailDeliveryStatus.PENDING,
     )
@@ -47,17 +48,17 @@ class FollowUpRequest(Base):
     requester_email: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     question: Mapped[str] = mapped_column(Text, nullable=False)
     status: Mapped[LeadStatus] = mapped_column(
-        Enum(LeadStatus, name="lead_status"),
+        pg_str_enum(LeadStatus, name="lead_status"),
         nullable=False,
         default=LeadStatus.NEW,
     )
     admin_email_status: Mapped[EmailDeliveryStatus] = mapped_column(
-        Enum(EmailDeliveryStatus, name="email_delivery_status"),
+        pg_str_enum(EmailDeliveryStatus, name="email_delivery_status"),
         nullable=False,
         default=EmailDeliveryStatus.PENDING,
     )
     requester_email_status: Mapped[EmailDeliveryStatus] = mapped_column(
-        Enum(EmailDeliveryStatus, name="email_delivery_status"),
+        pg_str_enum(EmailDeliveryStatus, name="email_delivery_status"),
         nullable=False,
         default=EmailDeliveryStatus.PENDING,
     )
@@ -84,17 +85,17 @@ class JobSubmission(Base):
         nullable=True,
     )
     status: Mapped[LeadStatus] = mapped_column(
-        Enum(LeadStatus, name="lead_status"),
+        pg_str_enum(LeadStatus, name="lead_status"),
         nullable=False,
         default=LeadStatus.NEW,
     )
     admin_email_status: Mapped[EmailDeliveryStatus] = mapped_column(
-        Enum(EmailDeliveryStatus, name="email_delivery_status"),
+        pg_str_enum(EmailDeliveryStatus, name="email_delivery_status"),
         nullable=False,
         default=EmailDeliveryStatus.PENDING,
     )
     requester_email_status: Mapped[EmailDeliveryStatus] = mapped_column(
-        Enum(EmailDeliveryStatus, name="email_delivery_status"),
+        pg_str_enum(EmailDeliveryStatus, name="email_delivery_status"),
         nullable=False,
         default=EmailDeliveryStatus.PENDING,
     )

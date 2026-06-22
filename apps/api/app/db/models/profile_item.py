@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, Integer, String, Text, func
+from sqlalchemy import DateTime, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.enums import ProfileItemType, Visibility
 from app.db.base import Base
+from app.db.types import pg_str_enum
 
 
 class ProfileItem(Base):
@@ -13,13 +14,13 @@ class ProfileItem(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     type: Mapped[ProfileItemType] = mapped_column(
-        Enum(ProfileItemType, name="profile_item_type"),
+        pg_str_enum(ProfileItemType, name="profile_item_type"),
         nullable=False,
     )
     label: Mapped[str] = mapped_column(String(255), nullable=False)
     value: Mapped[str] = mapped_column(Text, nullable=False)
     visibility: Mapped[Visibility] = mapped_column(
-        Enum(Visibility, name="visibility"),
+        pg_str_enum(Visibility, name="visibility"),
         nullable=False,
         default=Visibility.PRIVATE,
     )

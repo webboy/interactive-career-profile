@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.enums import ChatJobStatus
 from app.db.base import Base
+from app.db.types import pg_str_enum
 
 
 class ChatJob(Base):
@@ -18,7 +19,7 @@ class ChatJob(Base):
         index=True,
     )
     status: Mapped[ChatJobStatus] = mapped_column(
-        Enum(ChatJobStatus, name="chat_job_status"),
+        pg_str_enum(ChatJobStatus, name="chat_job_status"),
         nullable=False,
         default=ChatJobStatus.QUEUED,
     )

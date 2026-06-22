@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, the public async chat/settings API contract, the Quasar UI shell, the public chat/legal/lead UX, and the admin MVP UI are in place; demo seed and final verification remain planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, the public async chat/settings API contract, the Quasar UI shell, the public chat/legal/lead UX, the admin MVP UI, and the demo seed/local verification runbook are in place.
 
 ## What This Is
 
@@ -89,6 +89,48 @@ docker compose --profile mail up --build
 - Worker process: `docker compose ps worker`
 - Mailpit UI (when enabled): `http://localhost:8025`
 
+### Local Demo Mode (No External API Keys)
+
+For smoke verification without OpenAI keys, override these values in `.env`:
+
+```env
+LLM_PROVIDER=fake
+EMBEDDING_PROVIDER=fake
+```
+
+Keep `ENABLE_DEMO_SEED=false` in `.env`. Demo data is seeded only through the explicit CLI command below.
+
+5. Run migrations and create admin users if needed:
+
+```bash
+docker compose run --rm api alembic upgrade head
+docker compose run --rm api python -m app.cli create-admin \
+  --email admin@example.com \
+  --password 'change-me'
+```
+
+6. Seed demo data explicitly:
+
+```bash
+docker compose run --rm api python -m app.cli seed-demo
+```
+
+Optional flags:
+
+- `--admin-email demo-admin@example.com`
+- `--admin-password change-me-demo-password`
+- `--reset-demo-data` to clear previously seeded demo records first
+
+The demo seed creates a fictional candidate (`Alex Rivera`), public/private/draft profile items, structured career records, text documents with chunks/embeddings, conversations, retrieval logs, unanswered prompts, leads, tool calls, and a demo admin user. Structured Berlin location data intentionally conflicts with a Munich mention in a reference-style document so hybrid precedence is visible in admin retrieval review.
+
+7. Smoke-check checklist:
+
+- Public pages: `/`, `/privacy`, `/terms`
+- Public API: `GET /health`, `GET /api/public/settings`, public chat create + job polling
+- Admin login at `/admin/login` with the demo or primary admin account
+- Admin screens: settings, profile items, career records, documents/chunks, conversations, retrieval logs, unanswered prompts, leads, tool calls
+- Optional Mailpit at `http://localhost:8025` when using the `mail` profile
+
 ## API Backend
 
 The API container runs migrations on startup, then starts FastAPI with Uvicorn. The Celery `worker` service uses the same API image/module code and processes public chat jobs from Redis. Job status and final public-safe responses are stored in Postgres `chat_jobs`; Redis is only the broker.
@@ -117,6 +159,12 @@ Create the first admin user:
 docker compose run --rm api python -m app.cli create-admin \
   --email admin@example.com \
   --password 'change-me'
+```
+
+Seed demo data for local verification:
+
+```bash
+docker compose run --rm api python -m app.cli seed-demo
 ```
 
 Auth endpoints:
@@ -189,6 +237,8 @@ Public chat UX (ICP-018): the home page at `/` provides the public chat experien
 
 Admin UI (ICP-019): protected admin routes under `/admin` provide settings, legal editing, profile items, career records, document upload/text ingestion with chunk/embedding actions, conversation review, retrieval logs, unanswered prompts, lead review, and tool-call observability. Admin auth uses cookie credentials through the existing UI shell.
 
+Demo seed and local verification (ICP-020): `python -m app.cli seed-demo` upserts fictional demo data for hybrid retrieval, policy behavior, admin review screens, and public chat smoke checks. The command is idempotent and never runs automatically from API startup or Docker entrypoints. Local verification can use `LLM_PROVIDER=fake` and `EMBEDDING_PROVIDER=fake` when external API keys are unavailable.
+
 Public chat job statuses:
 
 - `queued` - API accepted the message and enqueued Celery work.
@@ -210,7 +260,7 @@ apps/
 packages/
   shared/   shared schemas/types (future)
 data/
-  demo/     demo seed assets (future)
+  demo/     demo seed markdown assets for case study/reference/thesis content
 storage/    local uploads (gitignored except .gitkeep)
 docker/     service Dockerfiles
 ```
@@ -232,11 +282,11 @@ The local Docker MVP is planned as these implementation tasks:
 10. Add UI shell, routing, i18n, and API client. **Done**
 11. Add public chat, legal, and lead UX. **Done**
 12. Add admin UI for MVP workflows. **Done**
-13. Add demo seed, tests, and local verification.
+13. Add demo seed, tests, and local verification. **Done**
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.12`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.13`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 

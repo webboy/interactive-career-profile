@@ -1,10 +1,11 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Enum, Integer, String, Text, func
+from sqlalchemy import Date, DateTime, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.enums import CareerRecordType, EmbeddingStatus, Visibility
 from app.db.base import Base
+from app.db.types import pg_str_enum
 
 
 class CareerRecord(Base):
@@ -12,7 +13,7 @@ class CareerRecord(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     record_type: Mapped[CareerRecordType] = mapped_column(
-        Enum(CareerRecordType, name="career_record_type"),
+        pg_str_enum(CareerRecordType, name="career_record_type"),
         nullable=False,
         index=True,
     )
@@ -20,7 +21,7 @@ class CareerRecord(Base):
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     visibility: Mapped[Visibility] = mapped_column(
-        Enum(Visibility, name="career_record_visibility"),
+        pg_str_enum(Visibility, name="career_record_visibility"),
         nullable=False,
         default=Visibility.PUBLIC,
     )
@@ -30,7 +31,7 @@ class CareerRecord(Base):
     end_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     embedding_status: Mapped[EmbeddingStatus] = mapped_column(
-        Enum(EmbeddingStatus, name="embedding_status"),
+        pg_str_enum(EmbeddingStatus, name="embedding_status"),
         nullable=False,
         default=EmbeddingStatus.PENDING,
     )

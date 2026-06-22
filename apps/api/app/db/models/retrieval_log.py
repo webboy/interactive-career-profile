@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.enums import SourceCategory, UnansweredPromptReason, Visibility
 from app.db.base import Base
+from app.db.types import pg_str_enum
 
 
 class RetrievalLog(Base):
@@ -45,7 +46,7 @@ class RetrievalLogItem(Base):
         index=True,
     )
     source_type: Mapped[SourceCategory] = mapped_column(
-        Enum(SourceCategory, name="source_category"),
+        pg_str_enum(SourceCategory, name="source_category"),
         nullable=False,
     )
     source_id: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -53,7 +54,7 @@ class RetrievalLogItem(Base):
     snippet: Mapped[str] = mapped_column(Text, nullable=False)
     score: Mapped[float | None] = mapped_column(Float, nullable=True)
     visibility: Mapped[Visibility] = mapped_column(
-        Enum(Visibility, name="retrieval_log_visibility"),
+        pg_str_enum(Visibility, name="retrieval_log_visibility"),
         nullable=False,
     )
     was_used: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -68,7 +69,7 @@ class UnansweredPrompt(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     query: Mapped[str] = mapped_column(Text, nullable=False)
     reason: Mapped[UnansweredPromptReason] = mapped_column(
-        Enum(UnansweredPromptReason, name="unanswered_prompt_reason"),
+        pg_str_enum(UnansweredPromptReason, name="unanswered_prompt_reason"),
         nullable=False,
     )
     language: Mapped[str | None] = mapped_column(String(32), nullable=True)

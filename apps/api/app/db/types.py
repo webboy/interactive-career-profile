@@ -1,7 +1,18 @@
 import json
+from enum import StrEnum
 
 from pgvector.sqlalchemy import Vector
+from sqlalchemy import Enum
 from sqlalchemy.types import Text, TypeDecorator
+
+
+def pg_str_enum(enum_class: type[StrEnum], name: str, **kwargs) -> Enum:
+    return Enum(
+        enum_class,
+        name=name,
+        values_callable=lambda members: [member.value for member in members],
+        **kwargs,
+    )
 
 
 class EmbeddingVector(TypeDecorator):

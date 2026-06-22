@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.enums import MessageRole, ToolCallStatus
 from app.db.base import Base
+from app.db.types import pg_str_enum
 
 
 class Conversation(Base):
@@ -47,7 +48,7 @@ class Message(Base):
         index=True,
     )
     role: Mapped[MessageRole] = mapped_column(
-        Enum(MessageRole, name="message_role"),
+        pg_str_enum(MessageRole, name="message_role"),
         nullable=False,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
@@ -71,7 +72,7 @@ class ToolCall(Base):
     )
     tool_name: Mapped[str] = mapped_column(String(255), nullable=False)
     status: Mapped[ToolCallStatus] = mapped_column(
-        Enum(ToolCallStatus, name="tool_call_status"),
+        pg_str_enum(ToolCallStatus, name="tool_call_status"),
         nullable=False,
         default=ToolCallStatus.PENDING,
     )
