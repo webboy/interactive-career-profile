@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies.auth import require_admin_user
@@ -9,11 +9,16 @@ from app.schemas.agent import (
     AgentDebugRequest,
     AgentDebugResponse,
     AgentSourceSummary,
+    ConversationListItemResponse,
     ConversationMessageResponse,
     ConversationMessagesResponse,
 )
 from app.services.agent.graph import run_agent_turn
-from app.services.conversations import get_conversation, list_conversation_messages
+from app.services.conversations import (
+    get_conversation,
+    list_conversation_messages,
+    list_conversations,
+)
 from app.services.llm.factory import get_llm_provider
 
 router = APIRouter(prefix="/api/admin", tags=["admin-agent"])
@@ -53,6 +58,29 @@ async def admin_debug_agent(
         grounded=result.grounded,
         refused=result.refused,
     )
+
+
+@router.get("/conversations", response_model=list[ConversationListItemResponse])
+async def admin_list_conversations(
+    limit: int = Query(default=50, ge=1, le=200),
+    _: User = Depends(require_admin_user),
+    session: AsyncSession = Depends(get_db_session),
+) -> list[ConversationListItemResponse]:
+    rows = await list_conversations(session, limit=limit)
+    return [
+        ConversationListItemResponse(
+            id=conversation.id,
+            session_id=conversation.session_id,
+            language=conversation.language,
+            message_count=message_count,
+            latest_message_preview=(
+                latest_preview[:200] if latest_preview else None
+            ),
+            created_at=conversation.created_at,
+            updated_at=conversation.updated_at,
+        )
+        for conversation, message_count, latest_preview in rows
+    ]
 
 
 @router.get("/conversations/{conversation_id}/messages", response_model=ConversationMessagesResponse)

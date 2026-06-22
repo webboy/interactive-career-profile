@@ -49,6 +49,7 @@ async def test_agent_routes_require_auth(client: AsyncClient) -> None:
     assert (
         await client.post("/api/admin/agent/debug", json={"message": "Tell me about skills"})
     ).status_code == 401
+    assert (await client.get("/api/admin/conversations")).status_code == 401
     assert (await client.get("/api/admin/conversations/1/messages")).status_code == 401
 
 
@@ -201,6 +202,41 @@ async def test_grounding_failure_returns_safe_fallback(db_session: AsyncSession)
     assert result.refused is True
     assert result.policy_decision == PolicyDecision.REFUSE_GROUNDING
     assert result.grounded is False
+
+
+@pytest.mark.asyncio
+async def test_conversation_list_requires_auth(client: AsyncClient) -> None:
+    assert (await client.get("/api/admin/conversations")).status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_conversation_list_returns_recent_conversations(
+    auth_client: AsyncClient,
+    db_session: AsyncSession,
+) -> None:
+    await _seed_public_profile_item(
+        db_session,
+        key="location",
+        label="Location",
+        value="Berlin, Germany",
+    )
+
+    debug_response = await auth_client.post(
+        "/api/admin/agent/debug",
+        json={"message": "Where are you located?", "session_id": "admin-session-1"},
+    )
+    assert debug_response.status_code == 200
+    conversation_id = debug_response.json()["conversation_id"]
+
+    list_response = await auth_client.get("/api/admin/conversations")
+    assert list_response.status_code == 200
+    conversations = list_response.json()
+    assert len(conversations) >= 1
+    first = conversations[0]
+    assert first["id"] == conversation_id
+    assert first["session_id"] == "admin-session-1"
+    assert first["message_count"] == 2
+    assert first["latest_message_preview"]
 
 
 @pytest.mark.asyncio

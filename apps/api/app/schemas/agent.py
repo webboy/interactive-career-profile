@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from app.core.enums import AgentIntent, PolicyDecision
@@ -27,6 +29,16 @@ class AgentDebugResponse(BaseModel):
     sources: list[AgentSourceSummary] = Field(default_factory=list)
     grounded: bool
     refused: bool
+
+
+class ConversationListItemResponse(BaseModel):
+    id: int
+    session_id: str | None
+    language: str | None
+    message_count: int
+    latest_message_preview: str | None = None
+    created_at: datetime
+    updated_at: datetime
 
 
 class ConversationMessageResponse(BaseModel):

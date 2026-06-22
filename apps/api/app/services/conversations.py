@@ -1,8 +1,39 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.enums import MessageRole, ToolCallStatus
 from app.db.models.conversation import Conversation, Message, ToolCall
+
+
+async def list_conversations(
+    session: AsyncSession,
+    *,
+    limit: int = 50,
+) -> list[tuple[Conversation, int, str | None]]:
+    result = await session.execute(
+        select(Conversation)
+        .order_by(Conversation.updated_at.desc(), Conversation.id.desc())
+        .limit(limit)
+    )
+    conversations = list(result.scalars().all())
+    rows: list[tuple[Conversation, int, str | None]] = []
+
+    for conversation in conversations:
+        count_result = await session.execute(
+            select(func.count(Message.id)).where(Message.conversation_id == conversation.id)
+        )
+        message_count = int(count_result.scalar_one())
+
+        latest_result = await session.execute(
+            select(Message.content)
+            .where(Message.conversation_id == conversation.id)
+            .order_by(Message.created_at.desc(), Message.id.desc())
+            .limit(1)
+        )
+        latest_preview = latest_result.scalar_one_or_none()
+        rows.append((conversation, message_count, latest_preview))
+
+    return rows
 
 
 async def get_conversation(session: AsyncSession, conversation_id: int) -> Conversation | None:
