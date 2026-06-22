@@ -152,8 +152,12 @@ Admin endpoints (require auth cookie):
 - `GET /api/admin/retrieval-logs`
 - `GET /api/admin/retrieval-logs/{id}`
 - `GET /api/admin/unanswered-prompts`
+- `POST /api/admin/agent/debug`
+- `GET /api/admin/conversations/{id}/messages`
 
-Hybrid retrieval (ICP-013): public `profile_items` and `career_records` are selected deterministically as canonical facts. Public `document_chunks` with ready embeddings are searched through pgvector as supporting evidence. Structured records take precedence when sources conflict. Admin debug retrieval persists retrieval logs, source items, and unanswered prompts for later agent and admin UI work. Public chat/retrieval endpoints remain deferred to ICP-016. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
+Hybrid retrieval (ICP-013): public `profile_items` and `career_records` are selected deterministically as canonical facts. Public `document_chunks` with ready embeddings are searched through pgvector as supporting evidence. Structured records take precedence when sources conflict. Admin debug retrieval persists retrieval logs, source items, and unanswered prompts for later agent and admin UI work.
+
+Grounded agent (ICP-014): LangGraph workflow runs policy checks, hybrid retrieval, grounded answer generation, and grounding verification. Salary and phone/contact questions are refused deterministically. Conversations and messages are persisted. Admin debug agent endpoint validates the workflow before ICP-016 public chat. Public chat/retrieval endpoints remain deferred to ICP-016. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
 
 Supported upload types: PDF, DOCX, TXT, Markdown. Custom pasted text is also supported.
 
@@ -184,7 +188,7 @@ The local Docker MVP is planned as these implementation tasks:
 4. Add profile and career records backend. **Done**
 5. Add file storage and document ingestion. **Done**
 6. Add embeddings, custom retrieval, and logging. **Done**
-7. Add LLM adapter and LangGraph agent.
+7. Add LLM adapter and LangGraph agent. **Done**
 8. Add internal MCP tools and email workflows.
 9. Add public API and chat contract.
 10. Add UI shell, routing, i18n, and API client.
@@ -194,7 +198,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.5`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.6`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 

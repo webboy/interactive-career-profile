@@ -81,3 +81,21 @@ class UnansweredPromptReason(StrEnum):
     BELOW_THRESHOLD = "below_threshold"
     POLICY = "policy"
     OTHER = "other"
+
+
+class AgentIntent(StrEnum):
+    CAREER = "career"
+    SKILLS = "skills"
+    AVAILABILITY = "availability"
+    CONTACT = "contact"
+    SALARY = "salary"
+    GENERAL = "general"
+    UNSUPPORTED = "unsupported"
+
+
+class PolicyDecision(StrEnum):
+    ALLOW = "allow"
+    REFUSE_SALARY = "refuse_salary"
+    REFUSE_CONTACT = "refuse_contact"
+    REFUSE_UNSUPPORTED = "refuse_unsupported"
+    REFUSE_GROUNDING = "refuse_grounding"

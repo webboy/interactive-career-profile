@@ -1,7 +1,22 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.enums import MessageRole, ToolCallStatus
 from app.db.models.conversation import Conversation, Message, ToolCall
+
+
+async def get_conversation(session: AsyncSession, conversation_id: int) -> Conversation | None:
+    result = await session.execute(select(Conversation).where(Conversation.id == conversation_id))
+    return result.scalar_one_or_none()
+
+
+async def list_conversation_messages(session: AsyncSession, conversation_id: int) -> list[Message]:
+    result = await session.execute(
+        select(Message)
+        .where(Message.conversation_id == conversation_id)
+        .order_by(Message.created_at, Message.id)
+    )
+    return list(result.scalars().all())
 
 
 async def create_conversation(

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+import re
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.enums import CareerRecordType, SourceCategory, Visibility
@@ -40,7 +42,12 @@ class StructuredSource:
 
 
 def _tokenize_query(query: str) -> list[str]:
-    return [token for token in query.lower().split() if token]
+    tokens: list[str] = []
+    for token in query.lower().split():
+        cleaned = re.sub(r"[^\w]", "", token)
+        if cleaned:
+            tokens.append(cleaned)
+    return tokens
 
 
 def _text_matches(query_tokens: list[str], *fields: str | None) -> tuple[bool, float]:

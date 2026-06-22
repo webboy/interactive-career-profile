@@ -31,7 +31,9 @@ class Settings(BaseSettings):
 
     llm_provider: str | None = Field(default="openai", alias="LLM_PROVIDER")
     openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
-    openai_model: str | None = Field(default=None, alias="OPENAI_MODEL")
+    openai_model: str = Field(default="gpt-4o-mini", alias="OPENAI_MODEL")
+    agent_max_tokens: int = Field(default=1024, alias="AGENT_MAX_TOKENS")
+    agent_temperature: float = Field(default=0.2, alias="AGENT_TEMPERATURE")
     anthropic_api_key: str | None = Field(default=None, alias="ANTHROPIC_API_KEY")
     google_api_key: str | None = Field(default=None, alias="GOOGLE_API_KEY")
     aws_region: str | None = Field(default=None, alias="AWS_REGION")
