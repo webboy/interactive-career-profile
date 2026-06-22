@@ -2,6 +2,9 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
+COPY apps/mcp/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
 COPY apps/mcp /app
 
 ENV PORT=8100

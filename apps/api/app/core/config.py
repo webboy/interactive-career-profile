@@ -16,6 +16,15 @@ class Settings(BaseSettings):
     app_url: str = Field(default="http://localhost:9000", alias="APP_URL")
     api_url: str = Field(default="http://localhost:8000", alias="API_URL")
     mcp_url: str = Field(default="http://mcp:8100", alias="MCP_URL")
+    mcp_internal_api_token: str = Field(
+        default="change-me-mcp-internal-token",
+        alias="MCP_INTERNAL_API_TOKEN",
+    )
+    admin_notification_email: str = Field(
+        default="admin@example.com",
+        alias="ADMIN_NOTIFICATION_EMAIL",
+    )
+    smtp_timeout_seconds: int = Field(default=10, alias="SMTP_TIMEOUT_SECONDS")
     database_url: str = Field(
         default="postgresql+psycopg://icp:icp@postgres:5432/icp",
         alias="DATABASE_URL",

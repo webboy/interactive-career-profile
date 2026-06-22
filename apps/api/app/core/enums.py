@@ -91,6 +91,26 @@ class AgentIntent(StrEnum):
     SALARY = "salary"
     GENERAL = "general"
     UNSUPPORTED = "unsupported"
+    MEETING_REQUEST = "meeting_request"
+    FOLLOW_UP = "follow_up"
+    JOB_SUBMISSION = "job_submission"
+    SKILL_EVIDENCE = "skill_evidence"
+    PROJECT_CASE_STUDY = "project_case_study"
+    CV_RECOMMENDATION = "cv_recommendation"
+
+
+class LeadStatus(StrEnum):
+    NEW = "new"
+    SENT = "sent"
+    FAILED = "failed"
+    REVIEWED = "reviewed"
+
+
+class EmailDeliveryStatus(StrEnum):
+    NOT_REQUIRED = "not_required"
+    PENDING = "pending"
+    SENT = "sent"
+    FAILED = "failed"
 
 
 class PolicyDecision(StrEnum):

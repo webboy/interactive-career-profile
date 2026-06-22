@@ -1,6 +1,7 @@
 from app.db.models.career_record import CareerRecord
 from app.db.models.conversation import Conversation, Message, ToolCall
 from app.db.models.document import Document, DocumentChunk
+from app.db.models.lead import FollowUpRequest, JobSubmission, MeetingRequest
 from app.db.models.legal_page import LegalPage
 from app.db.models.profile_item import ProfileItem
 from app.db.models.retrieval_log import RetrievalLog, RetrievalLogItem, UnansweredPrompt
@@ -13,7 +14,10 @@ __all__ = [
     "Conversation",
     "Document",
     "DocumentChunk",
+    "FollowUpRequest",
+    "JobSubmission",
     "LegalPage",
+    "MeetingRequest",
     "Message",
     "ProfileItem",
     "RetrievalLog",

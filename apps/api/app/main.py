@@ -6,12 +6,14 @@ from app.api.routes.admin_agent import router as admin_agent_router
 from app.api.routes.admin_career_records import router as admin_career_records_router
 from app.api.routes.admin_documents import chunk_router as admin_document_chunks_router
 from app.api.routes.admin_documents import router as admin_documents_router
+from app.api.routes.admin_leads import router as admin_leads_router
 from app.api.routes.admin_legal import router as admin_legal_router
 from app.api.routes.admin_profile import router as admin_profile_router
 from app.api.routes.admin_retrieval import router as admin_retrieval_router
 from app.api.routes.admin_settings import router as admin_settings_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
+from app.api.routes.internal_mcp import router as internal_mcp_router
 from app.api.routes.public_legal import router as public_legal_router
 from app.core.config import get_settings
 from app.core.version import API_VERSION
@@ -49,6 +51,8 @@ def create_app() -> FastAPI:
     app.include_router(admin_document_chunks_router)
     app.include_router(admin_retrieval_router)
     app.include_router(admin_agent_router)
+    app.include_router(admin_leads_router)
+    app.include_router(internal_mcp_router)
     app.include_router(admin_legal_router)
     app.include_router(public_legal_router)
     return app

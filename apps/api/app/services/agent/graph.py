@@ -14,9 +14,16 @@ from app.services.agent.intent import classify_intent
 from app.services.agent.language import detect_language
 from app.services.agent.policy import evaluate_policy, policy_refusal_message
 from app.services.agent.prompts import SYSTEM_PROMPT, build_user_prompt
+from app.services.agent.tool_intent import (
+    build_tool_arguments,
+    classify_tool_intent,
+    format_tool_response,
+    tool_name_for_intent,
+)
 from app.services.conversations import add_message, create_conversation, get_conversation
 from app.services.llm.base import LLMMessage, LLMProvider
 from app.services.llm.factory import get_llm_provider
+from app.services.mcp.client import ApiMcpClient, get_mcp_client
 from app.services.retrieval.hybrid import HybridRetrievalResult, run_hybrid_retrieval
 
 
@@ -36,6 +43,7 @@ class AgentState(TypedDict, total=False):
     refused: bool
     sources_summary: list[dict[str, str | bool]]
     retrieval_result: HybridRetrievalResult | None
+    uses_mcp_tool: bool
 
 
 @dataclass(frozen=True)
@@ -125,6 +133,14 @@ async def _prepare_node(state: AgentState, config: RunnableConfig) -> AgentState
 
     if policy_decision != PolicyDecision.ALLOW:
         intent = AgentIntent.SALARY if policy_decision == PolicyDecision.REFUSE_SALARY else AgentIntent.CONTACT
+        uses_mcp_tool = False
+    else:
+        tool_intent = classify_tool_intent(state["user_message"])
+        if tool_intent is not None:
+            intent = tool_intent
+            uses_mcp_tool = True
+        else:
+            uses_mcp_tool = False
 
     conversation = await get_conversation(session, state["conversation_id"])
     if conversation is None:
@@ -149,12 +165,15 @@ async def _prepare_node(state: AgentState, config: RunnableConfig) -> AgentState
         "grounded": False,
         "refused": False,
         "sources_summary": [],
+        "uses_mcp_tool": uses_mcp_tool,
     }
 
 
 def _route_after_prepare(state: AgentState) -> str:
     if state["policy_decision"] != PolicyDecision.ALLOW.value:
         return "policy_refusal"
+    if state.get("uses_mcp_tool"):
+        return "mcp_tool"
     return "retrieve"
 
 
@@ -179,6 +198,59 @@ async def _policy_refusal_node(state: AgentState, config: RunnableConfig) -> Age
         "refused": True,
         "grounded": True,
         "unanswered_prompt_id": unanswered.id,
+    }
+
+
+async def _mcp_tool_node(state: AgentState, config: RunnableConfig) -> AgentState:
+    cfg = _configurable(config)
+    session: AsyncSession = cfg["session"]
+    settings: Settings = cfg["settings"]
+    mcp_client: ApiMcpClient = cfg.get("mcp_client") or get_mcp_client(settings)
+
+    intent = AgentIntent(state["intent"])
+    tool_name = tool_name_for_intent(intent)
+    arguments = build_tool_arguments(intent, state["user_message"])
+
+    cleaned_arguments = {
+        key: value for key, value in arguments.items() if value not in ("", None)
+    }
+    result = await mcp_client.call_tool(
+        session,
+        conversation_id=state["conversation_id"],
+        tool_name=tool_name,
+        arguments=cleaned_arguments,
+    )
+
+    if result.success and result.payload is not None:
+        assistant_message = format_tool_response(intent, result.payload)
+        sources_summary = [
+            {
+                "source_type": str(source.get("source_type", "")),
+                "title": str(source.get("title", "")),
+                "was_used": bool(source.get("was_used", False)),
+            }
+            for source in result.payload.get("sources", [])
+            if isinstance(source, dict)
+        ]
+        retrieval_log_id = result.payload.get("retrieval_log_id")
+        return {
+            **state,
+            "assistant_message": assistant_message,
+            "grounded": True,
+            "refused": False,
+            "sources_summary": sources_summary,
+            "retrieval_log_id": retrieval_log_id if isinstance(retrieval_log_id, int) else None,
+        }
+
+    return {
+        **state,
+        "assistant_message": (
+            "I could not complete the requested workflow tool call safely. "
+            "Please try again or use approved contact channels."
+        ),
+        "grounded": False,
+        "refused": True,
+        "policy_decision": PolicyDecision.REFUSE_UNSUPPORTED.value,
     }
 
 
@@ -279,6 +351,7 @@ def _build_graph():
 
     graph.add_node("prepare", _prepare_node)
     graph.add_node("policy_refusal", _policy_refusal_node)
+    graph.add_node("mcp_tool", _mcp_tool_node)
     graph.add_node("retrieve", _retrieve_node)
     graph.add_node("unsupported_refusal", _unsupported_refusal_node)
     graph.add_node("generate", _generate_node)
@@ -290,10 +363,12 @@ def _build_graph():
         _route_after_prepare,
         {
             "policy_refusal": "policy_refusal",
+            "mcp_tool": "mcp_tool",
             "retrieve": "retrieve",
         },
     )
     graph.add_edge("policy_refusal", "finalize")
+    graph.add_edge("mcp_tool", "finalize")
     graph.add_conditional_edges(
         "retrieve",
         _route_after_retrieve,

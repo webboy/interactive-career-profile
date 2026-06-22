@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, and document ingestion with local file storage are in place on top of the FastAPI foundation; RAG, MCP tools, and UI remain planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, and internal MCP lead/email workflows are in place on top of the FastAPI foundation; public chat API and UI remain planned.
 
 ## What This Is
 
@@ -35,7 +35,7 @@ ICP is not a generic chatbot over a CV. The goal is a controlled, admin-managed 
 - Retrieval: custom application retriever, PostgreSQL, pgvector
 - MCP: FastMCP internal tool server
 - Storage: local and S3-compatible drivers
-- Email: SMTP, with Mailpit planned for local development
+- Email: SMTP, with Mailpit for local development (`docker compose --profile mail up`)
 
 ## Local Development Target
 
@@ -154,10 +154,16 @@ Admin endpoints (require auth cookie):
 - `GET /api/admin/unanswered-prompts`
 - `POST /api/admin/agent/debug`
 - `GET /api/admin/conversations/{id}/messages`
+- `GET /api/admin/leads/meeting-requests`
+- `GET /api/admin/leads/follow-up-requests`
+- `GET /api/admin/leads/job-submissions`
+- `GET /api/admin/tool-calls`
 
 Hybrid retrieval (ICP-013): public `profile_items` and `career_records` are selected deterministically as canonical facts. Public `document_chunks` with ready embeddings are searched through pgvector as supporting evidence. Structured records take precedence when sources conflict. Admin debug retrieval persists retrieval logs, source items, and unanswered prompts for later agent and admin UI work.
 
 Grounded agent (ICP-014): LangGraph workflow runs policy checks, hybrid retrieval, grounded answer generation, and grounding verification. Salary and phone/contact questions are refused deterministically. Conversations and messages are persisted. Admin debug agent endpoint validates the workflow before ICP-016 public chat. Public chat/retrieval endpoints remain deferred to ICP-016. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
+
+Internal MCP and email workflows (ICP-015): the `mcp` service runs FastMCP with HTTP tool bridge endpoints. The API agent calls MCP tools for meeting requests, follow-up questions, job submissions, CV/profile recommendations, skill evidence, and project case studies. Lead records persist in Postgres and plain-text notification emails go through SMTP/Mailpit. Internal MCP API routes under `/api/internal/mcp/*` are protected by `X-MCP-Internal-Token` and are not public. Configure `ADMIN_NOTIFICATION_EMAIL`, `MCP_INTERNAL_API_TOKEN`, and SMTP settings in `.env`.
 
 Supported upload types: PDF, DOCX, TXT, Markdown. Custom pasted text is also supported.
 
@@ -168,7 +174,7 @@ Current API version is stored in `system_metadata.api_version` and exposed on `G
 ```text
 apps/
   api/      FastAPI backend foundation
-  mcp/      internal MCP placeholder
+  mcp/      internal FastMCP tool server
   ui/       Quasar UI placeholder
 packages/
   shared/   shared schemas/types (future)
@@ -189,7 +195,7 @@ The local Docker MVP is planned as these implementation tasks:
 5. Add file storage and document ingestion. **Done**
 6. Add embeddings, custom retrieval, and logging. **Done**
 7. Add LLM adapter and LangGraph agent. **Done**
-8. Add internal MCP tools and email workflows.
+8. Add internal MCP tools and email workflows. **Done**
 9. Add public API and chat contract.
 10. Add UI shell, routing, i18n, and API client.
 11. Add public chat, legal, and lead UX.
@@ -198,7 +204,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.6`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.7`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 
