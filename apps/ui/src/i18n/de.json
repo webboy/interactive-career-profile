@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "Interaktives Karriereprofil",
+    "homeIntro": "Der öffentliche Chat und die Admin-Workflows werden in den nächsten Aufgaben erweitert.",
+    "privacy": "Datenschutz",
+    "terms": "Nutzungsbedingungen",
+    "adminLogin": "Admin-Anmeldung",
+    "adminDashboard": "Admin-Dashboard",
+    "logout": "Abmelden",
+    "loading": "Wird geladen...",
+    "error": "Etwas ist schiefgelaufen",
+    "language": "Sprache"
+  },
+  "admin": {
+    "loginTitle": "Admin-Anmeldung",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "login": "Anmelden",
+    "welcome": "Willkommen, {email}"
+  }
+}

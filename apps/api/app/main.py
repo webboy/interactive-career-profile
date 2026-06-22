@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.admin_agent import router as admin_agent_router
 from app.api.routes.admin_career_records import router as admin_career_records_router
@@ -43,6 +44,13 @@ def create_app() -> FastAPI:
         title=settings.app_name,
         version=API_VERSION,
         lifespan=lifespan,
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_allowed_origin_list,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
     app.include_router(health_router)
     app.include_router(auth_router)

@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     app_name: str = Field(default="Interactive Career Profile", alias="APP_NAME")
     app_url: str = Field(default="http://localhost:9000", alias="APP_URL")
     api_url: str = Field(default="http://localhost:8000", alias="API_URL")
+    cors_allowed_origins: str = Field(
+        default="http://localhost:9000",
+        alias="CORS_ALLOWED_ORIGINS",
+    )
     mcp_url: str = Field(default="http://mcp:8100", alias="MCP_URL")
     mcp_internal_api_token: str = Field(
         default="change-me-mcp-internal-token",
@@ -94,6 +98,10 @@ class Settings(BaseSettings):
     @property
     def supported_language_list(self) -> list[str]:
         return [language.strip() for language in self.supported_languages.split(",") if language.strip()]
+
+    @property
+    def cors_allowed_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
 
 @lru_cache

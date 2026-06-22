@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "Interactive Career Profile",
+    "homeIntro": "Public chat and admin workflows will be expanded in upcoming tasks.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "adminLogin": "Admin login",
+    "adminDashboard": "Admin dashboard",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "language": "Language"
+  },
+  "admin": {
+    "loginTitle": "Admin login",
+    "email": "Email",
+    "password": "Password",
+    "login": "Sign in",
+    "welcome": "Welcome, {email}"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "app": {
+    "title": "Interaktivni karijerni profil",
+    "homeIntro": "Javni chat i admin tokovi rada biće prošireni u narednim zadacima.",
+    "privacy": "Privatnost",
+    "terms": "Uslovi korišćenja",
+    "adminLogin": "Admin prijava",
+    "adminDashboard": "Admin kontrolna tabla",
+    "logout": "Odjava",
+    "loading": "Učitavanje...",
+    "error": "Došlo je do greške",
+    "language": "Jezik"
+  },
+  "admin": {
+    "loginTitle": "Admin prijava",
+    "email": "Email",
+    "password": "Lozinka",
+    "login": "Prijavi se",
+    "welcome": "Dobrodošli, {email}"
+  }
+}

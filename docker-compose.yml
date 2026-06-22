@@ -3,11 +3,12 @@ services:
     build:
       context: .
       dockerfile: docker/ui.Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
     ports:
       - "9000:9000"
     environment:
       PORT: 9000
-      API_URL: http://api:8000
     depends_on:
       api:
         condition: service_healthy

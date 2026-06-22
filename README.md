@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, and the public async chat/settings API contract are in place; public UI remains planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, the public async chat/settings API contract, and the Quasar UI shell are in place; public chat UX remains planned.
 
 ## What This Is
 
@@ -99,6 +99,12 @@ Run backend tests:
 docker compose run --rm api pytest
 ```
 
+Run UI tests:
+
+```bash
+cd apps/ui && npm test -- --run
+```
+
 Run migrations manually:
 
 ```bash
@@ -176,6 +182,8 @@ Internal MCP and email workflows (ICP-015): the `mcp` service runs FastMCP with 
 
 Public API and chat contract (ICP-016/ICP-016A): `POST /api/public/chat` validates the public session/conversation, creates a persisted chat job, dispatches grounded agent execution through Celery with Redis as broker, and returns `job_id`, `conversation_id`, `session_id`, and status. Clients poll `GET /api/public/chat/jobs/{job_id}?session_id=...` until the job is `completed` or `failed`. Completed jobs include assistant text, language, refusal/grounding flags, and source-safe labels (`source_type`, `title` only). Internal retrieval log ids, unanswered prompt ids, source ids, snippets, scores, and internal failure details are not exposed. `GET /api/public/settings` returns minimal app metadata for the UI shell.
 
+UI shell (ICP-017): the `ui` service is a Quasar/Vue 3/TypeScript SPA with Vue Router, Pinia, vue-i18n, typed API clients, public/admin layouts, and admin auth state. The browser uses `VITE_API_URL=http://localhost:8000` at build time. API CORS allows the UI origin with credentials for admin cookie auth via `CORS_ALLOWED_ORIGINS`.
+
 Public chat job statuses:
 
 - `queued` - API accepted the message and enqueued Celery work.
@@ -193,7 +201,7 @@ Current API version is stored in `system_metadata.api_version` and exposed on `G
 apps/
   api/      FastAPI backend foundation and Celery worker module
   mcp/      internal FastMCP tool server
-  ui/       Quasar UI placeholder
+  ui/       Quasar/Vue UI shell
 packages/
   shared/   shared schemas/types (future)
 data/
@@ -216,14 +224,14 @@ The local Docker MVP is planned as these implementation tasks:
 8. Add internal MCP tools and email workflows. **Done**
 9. Add public API and chat contract. **Done**
 9a. Convert public chat to async job polling with Celery/Redis. **Done**
-10. Add UI shell, routing, i18n, and API client.
+10. Add UI shell, routing, i18n, and API client. **Done**
 11. Add public chat, legal, and lead UX.
 12. Add admin UI for MVP workflows.
 13. Add demo seed, tests, and local verification.
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.10`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.11`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 
