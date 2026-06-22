@@ -56,3 +56,28 @@ class DocumentFileType(StrEnum):
     TXT = "txt"
     MARKDOWN = "markdown"
     TEXT = "text"
+
+
+class SourceCategory(StrEnum):
+    PROFILE_ITEM = "profile_item"
+    CAREER_RECORD = "career_record"
+    DOCUMENT_CHUNK = "document_chunk"
+
+
+class MessageRole(StrEnum):
+    USER = "user"
+    ASSISTANT = "assistant"
+    SYSTEM = "system"
+
+
+class ToolCallStatus(StrEnum):
+    PENDING = "pending"
+    SUCCESS = "success"
+    FAILED = "failed"
+
+
+class UnansweredPromptReason(StrEnum):
+    NO_CONTEXT = "no_context"
+    BELOW_THRESHOLD = "below_threshold"
+    POLICY = "policy"
+    OTHER = "other"

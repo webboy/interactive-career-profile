@@ -11,6 +11,7 @@ from app.core.enums import (
     Visibility,
 )
 from app.db.base import Base
+from app.db.types import EmbeddingVector
 
 
 class Document(Base):
@@ -91,6 +92,7 @@ class DocumentChunk(Base):
         default=EmbeddingStatus.PENDING,
     )
     embedding_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    embedding: Mapped[list[float] | None] = mapped_column(EmbeddingVector(1536), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

@@ -39,7 +39,17 @@ class Settings(BaseSettings):
     aws_secret_access_key: str | None = Field(default=None, alias="AWS_SECRET_ACCESS_KEY")
 
     embedding_provider: str | None = Field(default="openai", alias="EMBEDDING_PROVIDER")
-    openai_embedding_model: str | None = Field(default=None, alias="OPENAI_EMBEDDING_MODEL")
+    openai_embedding_model: str = Field(
+        default="text-embedding-3-small",
+        alias="OPENAI_EMBEDDING_MODEL",
+    )
+    embedding_dimensions: int = Field(default=1536, alias="EMBEDDING_DIMENSIONS")
+    retrieval_structured_limit: int = Field(default=10, alias="RETRIEVAL_STRUCTURED_LIMIT")
+    retrieval_document_limit: int = Field(default=5, alias="RETRIEVAL_DOCUMENT_LIMIT")
+    retrieval_document_score_threshold: float = Field(
+        default=0.7,
+        alias="RETRIEVAL_DOCUMENT_SCORE_THRESHOLD",
+    )
 
     filesystem_driver: str = Field(default="local", alias="FILESYSTEM_DRIVER")
     local_storage_path: str = Field(default="./storage/uploads", alias="LOCAL_STORAGE_PATH")

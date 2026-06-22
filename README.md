@@ -146,8 +146,14 @@ Admin endpoints (require auth cookie):
 - `POST /api/admin/documents/{id}/request-embedding`
 - `GET /api/admin/documents/{id}/chunks`
 - `PUT /api/admin/document-chunks/{chunk_id}`
+- `POST /api/admin/document-chunks/{chunk_id}/embed`
+- `POST /api/admin/embeddings/document-chunks/run-pending`
+- `POST /api/admin/retrieval/debug`
+- `GET /api/admin/retrieval-logs`
+- `GET /api/admin/retrieval-logs/{id}`
+- `GET /api/admin/unanswered-prompts`
 
-Admin list endpoints support optional `visibility` filtering. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
+Hybrid retrieval (ICP-013): public `profile_items` and `career_records` are selected deterministically as canonical facts. Public `document_chunks` with ready embeddings are searched through pgvector as supporting evidence. Structured records take precedence when sources conflict. Admin debug retrieval persists retrieval logs, source items, and unanswered prompts for later agent and admin UI work. Public chat/retrieval endpoints remain deferred to ICP-016. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
 
 Supported upload types: PDF, DOCX, TXT, Markdown. Custom pasted text is also supported.
 
@@ -177,7 +183,7 @@ The local Docker MVP is planned as these implementation tasks:
 3. Add admin auth, settings, and legal backend. **Done**
 4. Add profile and career records backend. **Done**
 5. Add file storage and document ingestion. **Done**
-6. Add embeddings, custom retrieval, and logging.
+6. Add embeddings, custom retrieval, and logging. **Done**
 7. Add LLM adapter and LangGraph agent.
 8. Add internal MCP tools and email workflows.
 9. Add public API and chat contract.
@@ -188,7 +194,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.4`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.5`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 
