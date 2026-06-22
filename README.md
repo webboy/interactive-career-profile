@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, the public async chat/settings API contract, and the Quasar UI shell are in place; public chat UX remains planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, the public async chat/settings API contract, the Quasar UI shell, and the public chat/legal/lead UX are in place; admin UI workflows remain planned.
 
 ## What This Is
 
@@ -184,6 +184,8 @@ Public API and chat contract (ICP-016/ICP-016A): `POST /api/public/chat` validat
 
 UI shell (ICP-017): the `ui` service is a Quasar/Vue 3/TypeScript SPA with Vue Router, Pinia, vue-i18n, typed API clients, public/admin layouts, and admin auth state. The browser uses `VITE_API_URL=http://localhost:8000` at build time. API CORS allows the UI origin with credentials for admin cookie auth via `CORS_ALLOWED_ORIGINS`.
 
+Public chat UX (ICP-018): the home page at `/` provides the public chat experience on top of the async job contract. Visitors see a persistent disclaimer, guided lead prompts (meeting request, job description, follow-up question), message history, queued/processing status while polling, refusal styling, collapsible evidence labels, and recoverable failed-job errors. `session_id` and `conversation_id` persist in browser storage, and the header language dropdown feeds the chat `language` field. Privacy and Terms pages render loading, error, and Markdown-ish legal content.
+
 Public chat job statuses:
 
 - `queued` - API accepted the message and enqueued Celery work.
@@ -225,7 +227,7 @@ The local Docker MVP is planned as these implementation tasks:
 9. Add public API and chat contract. **Done**
 9a. Convert public chat to async job polling with Celery/Redis. **Done**
 10. Add UI shell, routing, i18n, and API client. **Done**
-11. Add public chat, legal, and lead UX.
+11. Add public chat, legal, and lead UX. **Done**
 12. Add admin UI for MVP workflows.
 13. Add demo seed, tests, and local verification.
 

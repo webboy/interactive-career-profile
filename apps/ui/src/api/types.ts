@@ -93,4 +93,5 @@ export interface PollChatJobOptions {
   intervalMs?: number;
   maxAttempts?: number;
   signal?: AbortSignal;
+  onStatusChange?: (status: PublicChatJobStatusResponse) => void;
 }

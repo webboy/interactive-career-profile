@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Interaktives Karriereprofil",
-    "homeIntro": "Der öffentliche Chat und die Admin-Workflows werden in den nächsten Aufgaben erweitert.",
+    "homeIntro": "Stellen Sie Fragen zu diesem Karriereprofil, fordern Sie ein Meeting an oder reichen Sie eine Stellenbeschreibung zur Rollenpassung ein.",
     "privacy": "Datenschutz",
     "terms": "Nutzungsbedingungen",
     "adminLogin": "Admin-Anmeldung",
@@ -10,6 +10,29 @@
     "loading": "Wird geladen...",
     "error": "Etwas ist schiefgelaufen",
     "language": "Sprache"
+  },
+  "chat": {
+    "disclaimer": "Gespräche werden gespeichert, um Kontinuität zu gewährleisten. Bitte keine sensiblen personenbezogenen Daten, Passwörter oder vertraulichen Informationen senden.",
+    "emptyState": "Starten Sie ein Gespräch, indem Sie eine Nachricht eingeben oder unten eine geführte Eingabe wählen.",
+    "inputPlaceholder": "Fragen Sie nach Erfahrung, Fähigkeiten, Verfügbarkeit oder fordern Sie ein Meeting an...",
+    "send": "Senden",
+    "statusSubmitting": "Nachricht wird gesendet...",
+    "statusQueued": "Ihre Anfrage ist in der Warteschlange...",
+    "statusProcessing": "Antwort wird vorbereitet...",
+    "refusedHint": "Diese Anfrage konnte gemäß der Profilrichtlinie nicht erfüllt werden.",
+    "sourcesHeading": "Belege ({count})",
+    "leadPromptsHeading": "Geführte Eingaben",
+    "leadMeeting": "Meeting anfragen",
+    "leadJob": "Stellenbeschreibung einreichen",
+    "leadFollowUp": "Nachfrage stellen",
+    "leadMeetingPrompt": "Ich möchte ein Meeting vereinbaren. Mein Name ist (Ihr Name). E-Mail: sie{'@'}example.com. Bevorzugte Zeiten: nächste Woche vormittags.",
+    "leadJobPrompt": "Ich möchte eine Stellenbeschreibung zur Rollenpassung einreichen.\n\nStellenbeschreibung:\n[Stellenbeschreibung hier einfügen]\n\nE-Mail: sie{'@'}example.com",
+    "leadFollowUpPrompt": "Ich habe eine Nachfrage an den Profilinhaber.\n\nE-Mail: sie{'@'}example.com\nFrage: [Ihre Frage hier]"
+  },
+  "legal": {
+    "loading": "Rechtliche Seite wird geladen...",
+    "loadError": "Diese rechtliche Seite konnte nicht geladen werden.",
+    "updatedAt": "Zuletzt aktualisiert: {date}"
   },
   "admin": {
     "loginTitle": "Admin-Anmeldung",

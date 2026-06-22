@@ -5,6 +5,7 @@ import * as publicApi from "@/api/public";
 describe("chat job polling", () => {
   it("polls until completed", async () => {
     const getJobSpy = vi.spyOn(publicApi, "getPublicChatJob");
+    const onStatusChange = vi.fn();
     getJobSpy
       .mockResolvedValueOnce({
         job_id: "job-1",
@@ -34,11 +35,13 @@ describe("chat job polling", () => {
     const result = await pollPublicChatJob("job-1", "session-1", {
       intervalMs: 1,
       maxAttempts: 5,
+      onStatusChange,
     });
 
     expect(result.status).toBe("completed");
     expect(result.response?.assistant_message).toBe("Hello");
     expect(getJobSpy).toHaveBeenCalledTimes(2);
+    expect(onStatusChange).toHaveBeenCalledTimes(2);
 
     getJobSpy.mockRestore();
   });

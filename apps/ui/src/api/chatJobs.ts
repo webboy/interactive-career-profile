@@ -16,6 +16,7 @@ export async function pollPublicChatJob(
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const status = await getPublicChatJob(jobId, sessionId);
+    options.onStatusChange?.(status);
     if (status.status === "completed" || status.status === "failed") {
       return status;
     }

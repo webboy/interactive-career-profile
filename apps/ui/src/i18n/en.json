@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Interactive Career Profile",
-    "homeIntro": "Public chat and admin workflows will be expanded in upcoming tasks.",
+    "homeIntro": "Ask questions about this career profile, request a meeting, or submit a job description for role-fit analysis.",
     "privacy": "Privacy",
     "terms": "Terms",
     "adminLogin": "Admin login",
@@ -10,6 +10,29 @@
     "loading": "Loading...",
     "error": "Something went wrong",
     "language": "Language"
+  },
+  "chat": {
+    "disclaimer": "Conversations are stored to provide continuity. Do not submit sensitive personal data, passwords, or confidential information.",
+    "emptyState": "Start a conversation by typing a message or choosing a guided prompt below.",
+    "inputPlaceholder": "Ask about experience, skills, availability, or request a meeting...",
+    "send": "Send",
+    "statusSubmitting": "Sending your message...",
+    "statusQueued": "Your request is queued...",
+    "statusProcessing": "Preparing a response...",
+    "refusedHint": "This request could not be fulfilled under the profile policy.",
+    "sourcesHeading": "Evidence ({count})",
+    "leadPromptsHeading": "Guided prompts",
+    "leadMeeting": "Request a meeting",
+    "leadJob": "Submit a job description",
+    "leadFollowUp": "Ask a follow-up question",
+    "leadMeetingPrompt": "I'd like to schedule a meeting. My name is (Your name). Email: you{'@'}example.com. Preferred times: next week mornings.",
+    "leadJobPrompt": "I'd like to submit a job description for role-fit analysis.\n\nJob description:\n[paste role details here]\n\nEmail: you{'@'}example.com",
+    "leadFollowUpPrompt": "I have a follow-up question for the profile owner.\n\nEmail: you{'@'}example.com\nQuestion: [your question here]"
+  },
+  "legal": {
+    "loading": "Loading legal page...",
+    "loadError": "Unable to load this legal page.",
+    "updatedAt": "Last updated: {date}"
   },
   "admin": {
     "loginTitle": "Admin login",

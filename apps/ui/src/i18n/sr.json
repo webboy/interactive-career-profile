@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "Interaktivni karijerni profil",
-    "homeIntro": "Javni chat i admin tokovi rada biće prošireni u narednim zadacima.",
+    "homeIntro": "Postavite pitanja o ovom karijernom profilu, zatražite sastanak ili pošaljite opis posla za analizu uklapanja u ulogu.",
     "privacy": "Privatnost",
     "terms": "Uslovi korišćenja",
     "adminLogin": "Admin prijava",
@@ -10,6 +10,29 @@
     "loading": "Učitavanje...",
     "error": "Došlo je do greške",
     "language": "Jezik"
+  },
+  "chat": {
+    "disclaimer": "Razgovori se čuvaju radi kontinuiteta. Ne šaljite osetljive lične podatke, lozinke ili poverljive informacije.",
+    "emptyState": "Započnite razgovor unosom poruke ili izborom vođenog upita ispod.",
+    "inputPlaceholder": "Pitajte o iskustvu, veštinama, dostupnosti ili zatražite sastanak...",
+    "send": "Pošalji",
+    "statusSubmitting": "Slanje poruke...",
+    "statusQueued": "Vaš zahtev je u redu čekanja...",
+    "statusProcessing": "Priprema odgovora...",
+    "refusedHint": "Ovaj zahtev nije mogao biti ispunjen u skladu sa pravilima profila.",
+    "sourcesHeading": "Dokazi ({count})",
+    "leadPromptsHeading": "Vođeni upiti",
+    "leadMeeting": "Zatraži sastanak",
+    "leadJob": "Pošalji opis posla",
+    "leadFollowUp": "Postavi dodatno pitanje",
+    "leadMeetingPrompt": "Želeo bih da zakažem sastanak. Moje ime je (Vaše ime). Email: vi{'@'}example.com. Preferirani termini: sledeće nedelje ujutru.",
+    "leadJobPrompt": "Želeo bih da pošaljem opis posla za analizu uklapanja u ulogu.\n\nOpis posla:\n[ovde nalepite detalje uloge]\n\nEmail: vi{'@'}example.com",
+    "leadFollowUpPrompt": "Imam dodatno pitanje za vlasnika profila.\n\nEmail: vi{'@'}example.com\nPitanje: [vaše pitanje ovde]"
+  },
+  "legal": {
+    "loading": "Učitavanje pravne stranice...",
+    "loadError": "Nije moguće učitati ovu pravnu stranicu.",
+    "updatedAt": "Poslednje ažuriranje: {date}"
   },
   "admin": {
     "loginTitle": "Admin prijava",

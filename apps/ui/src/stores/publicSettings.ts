@@ -2,13 +2,14 @@ import { defineStore } from "pinia";
 import { getPublicSettings } from "@/api/public";
 import type { PublicSettingsResponse } from "@/api/types";
 import { setAppLocale } from "@/i18n";
+import { getStoredLanguage, setStoredLanguage } from "@/utils/session";
 
 export const usePublicSettingsStore = defineStore("publicSettings", {
   state: () => ({
     settings: null as PublicSettingsResponse | null,
     loading: false,
     error: null as string | null,
-    selectedLanguage: "en",
+    selectedLanguage: getStoredLanguage() ?? "en",
   }),
   getters: {
     appName: (state) => state.settings?.app_name ?? "Interactive Career Profile",
@@ -23,8 +24,15 @@ export const usePublicSettingsStore = defineStore("publicSettings", {
       this.error = null;
       try {
         this.settings = await getPublicSettings();
-        this.selectedLanguage = this.settings.default_language;
-        setAppLocale(this.selectedLanguage);
+        const storedLanguage = getStoredLanguage();
+        const defaultLanguage = this.settings.default_language;
+        const supported = this.settings.supported_languages;
+        const nextLanguage =
+          storedLanguage && supported.includes(storedLanguage)
+            ? storedLanguage
+            : defaultLanguage;
+        this.selectedLanguage = nextLanguage;
+        setAppLocale(nextLanguage);
         return this.settings;
       } catch (error) {
         this.error = error instanceof Error ? error.message : "Failed to load settings";
@@ -35,6 +43,7 @@ export const usePublicSettingsStore = defineStore("publicSettings", {
     },
     setLanguage(language: string): void {
       this.selectedLanguage = language;
+      setStoredLanguage(language);
       setAppLocale(language);
     },
   },
