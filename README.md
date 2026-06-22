@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, and internal MCP lead/email workflows are in place on top of the FastAPI foundation; public chat API and UI remain planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, and the public chat/settings API contract are in place; public UI remains planned.
 
 ## What This Is
 
@@ -113,8 +113,10 @@ Auth endpoints:
 - `POST /api/auth/logout`
 - `GET /api/auth/me`
 
-Public legal endpoints:
+Public endpoints:
 
+- `GET /api/public/settings`
+- `POST /api/public/chat`
 - `GET /api/public/privacy`
 - `GET /api/public/terms`
 
@@ -165,6 +167,8 @@ Grounded agent (ICP-014): LangGraph workflow runs policy checks, hybrid retrieva
 
 Internal MCP and email workflows (ICP-015): the `mcp` service runs FastMCP with HTTP tool bridge endpoints. The API agent calls MCP tools for meeting requests, follow-up questions, job submissions, CV/profile recommendations, skill evidence, and project case studies. Lead records persist in Postgres and plain-text notification emails go through SMTP/Mailpit. Internal MCP API routes under `/api/internal/mcp/*` are protected by `X-MCP-Internal-Token` and are not public. Configure `ADMIN_NOTIFICATION_EMAIL`, `MCP_INTERNAL_API_TOKEN`, and SMTP settings in `.env`.
 
+Public API and chat contract (ICP-016): `POST /api/public/chat` invokes the grounded agent without authentication. Clients must send a `session_id`; optional `conversation_id` may continue a thread only when it belongs to that session. Responses include assistant text, language, refusal/grounding flags, and source-safe labels (`source_type`, `title` only). Internal retrieval log ids, unanswered prompt ids, source ids, snippets, and scores are not exposed. `GET /api/public/settings` returns minimal app metadata for the UI shell.
+
 Supported upload types: PDF, DOCX, TXT, Markdown. Custom pasted text is also supported.
 
 Current API version is stored in `system_metadata.api_version` and exposed on `GET /health`.
@@ -196,7 +200,7 @@ The local Docker MVP is planned as these implementation tasks:
 6. Add embeddings, custom retrieval, and logging. **Done**
 7. Add LLM adapter and LangGraph agent. **Done**
 8. Add internal MCP tools and email workflows. **Done**
-9. Add public API and chat contract.
+9. Add public API and chat contract. **Done**
 10. Add UI shell, routing, i18n, and API client.
 11. Add public chat, legal, and lead UX.
 12. Add admin UI for MVP workflows.
@@ -204,7 +208,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.7`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.8`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 

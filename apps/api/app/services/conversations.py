@@ -10,6 +10,50 @@ async def get_conversation(session: AsyncSession, conversation_id: int) -> Conve
     return result.scalar_one_or_none()
 
 
+async def get_latest_conversation_for_session(
+    session: AsyncSession,
+    session_id: str,
+) -> Conversation | None:
+    result = await session.execute(
+        select(Conversation)
+        .where(Conversation.session_id == session_id)
+        .order_by(Conversation.updated_at.desc(), Conversation.id.desc())
+        .limit(1)
+    )
+    return result.scalar_one_or_none()
+
+
+class ConversationSessionMismatchError(ValueError):
+    """Raised when a conversation does not belong to the supplied public session."""
+
+
+async def resolve_public_conversation_id(
+    session: AsyncSession,
+    *,
+    session_id: str,
+    conversation_id: int | None = None,
+    language: str | None = None,
+) -> int:
+    if conversation_id is not None:
+        conversation = await get_conversation(session, conversation_id)
+        if conversation is None:
+            raise ValueError("Conversation not found")
+        if conversation.session_id != session_id:
+            raise ConversationSessionMismatchError("Conversation does not belong to session")
+        return conversation.id
+
+    latest = await get_latest_conversation_for_session(session, session_id)
+    if latest is not None:
+        return latest.id
+
+    conversation = await create_conversation(
+        session,
+        session_id=session_id,
+        language=language,
+    )
+    return conversation.id
+
+
 async def list_conversation_messages(session: AsyncSession, conversation_id: int) -> list[Message]:
     result = await session.execute(
         select(Message)

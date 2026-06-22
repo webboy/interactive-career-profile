@@ -14,7 +14,9 @@ from app.api.routes.admin_settings import router as admin_settings_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
 from app.api.routes.internal_mcp import router as internal_mcp_router
+from app.api.routes.public_chat import router as public_chat_router
 from app.api.routes.public_legal import router as public_legal_router
+from app.api.routes.public_settings import router as public_settings_router
 from app.core.config import get_settings
 from app.core.version import API_VERSION
 from app.db.session import close_engine, get_session_factory
@@ -54,6 +56,8 @@ def create_app() -> FastAPI:
     app.include_router(admin_leads_router)
     app.include_router(internal_mcp_router)
     app.include_router(admin_legal_router)
+    app.include_router(public_chat_router)
+    app.include_router(public_settings_router)
     app.include_router(public_legal_router)
     return app
 
