@@ -1,25 +1,26 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import get_settings
+from app.core.enums import ChatJobStatus
 from app.db.session import get_db_session
-from app.schemas.public import PublicChatRequest, PublicChatResponse
-from app.services.agent.graph import run_agent_turn
+from app.schemas.public import PublicChatJobCreateResponse, PublicChatJobStatusResponse, PublicChatRequest
+from app.services.chat_dispatcher import dispatch_chat_job
+from app.services.chat_jobs import (
+    PUBLIC_JOB_FAILURE_MESSAGE,
+    build_public_response_from_job,
+    create_chat_job,
+    get_chat_job,
+)
 from app.services.conversations import ConversationSessionMismatchError, resolve_public_conversation_id
-from app.services.llm.factory import get_llm_provider
-from app.services.public import map_agent_result_to_public_response
 
 router = APIRouter(prefix="/api/public", tags=["public"])
 
 
-@router.post("/chat", response_model=PublicChatResponse)
+@router.post("/chat", response_model=PublicChatJobCreateResponse, status_code=status.HTTP_202_ACCEPTED)
 async def public_chat(
     payload: PublicChatRequest,
     session: AsyncSession = Depends(get_db_session),
-) -> PublicChatResponse:
-    settings = get_settings()
-    provider = get_llm_provider(settings)
-
+) -> PublicChatJobCreateResponse:
     try:
         conversation_id = await resolve_public_conversation_id(
             session,
@@ -27,18 +28,45 @@ async def public_chat(
             conversation_id=payload.conversation_id,
             language=payload.language,
         )
-        result = await run_agent_turn(
+        job = await create_chat_job(
             session,
-            payload.message,
-            conversation_id=conversation_id,
             session_id=payload.session_id,
+            conversation_id=conversation_id,
+            message=payload.message,
             language=payload.language,
-            settings=settings,
-            llm_provider=provider,
         )
     except ConversationSessionMismatchError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
-    return map_agent_result_to_public_response(result, session_id=payload.session_id)
+    dispatch_chat_job(job.id)
+
+    return PublicChatJobCreateResponse(
+        job_id=job.id,
+        conversation_id=conversation_id,
+        session_id=payload.session_id,
+        status=job.status,
+    )
+
+
+@router.get("/chat/jobs/{job_id}", response_model=PublicChatJobStatusResponse)
+async def public_chat_job_status(
+    job_id: str,
+    session_id: str = Query(min_length=1, max_length=255),
+    session: AsyncSession = Depends(get_db_session),
+) -> PublicChatJobStatusResponse:
+    job = await get_chat_job(session, job_id)
+    if job is None or job.session_id != session_id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat job not found")
+
+    response = build_public_response_from_job(job)
+    error_message = PUBLIC_JOB_FAILURE_MESSAGE if job.status == ChatJobStatus.FAILED else None
+    return PublicChatJobStatusResponse(
+        job_id=job.id,
+        conversation_id=job.conversation_id,
+        session_id=job.session_id,
+        status=job.status,
+        response=response,
+        error_message=error_message,
+    )

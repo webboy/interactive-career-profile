@@ -40,6 +40,8 @@ services:
       DATABASE_USER: icp
       DATABASE_NAME: icp
       MCP_URL: http://mcp:8100
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
       LOCAL_STORAGE_PATH: /storage/uploads
     volumes:
       - ./apps/api:/app
@@ -48,6 +50,8 @@ services:
       postgres:
         condition: service_healthy
       mcp:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     healthcheck:
       test:
@@ -61,6 +65,34 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    command: celery -A app.worker.celery_app worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://icp:icp@postgres:5432/icp
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: icp
+      DATABASE_NAME: icp
+      MCP_URL: http://mcp:8100
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      LOCAL_STORAGE_PATH: /storage/uploads
+    volumes:
+      - ./apps/api:/app
+      - ./storage:/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mcp:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   mcp:
     build:
@@ -86,6 +118,17 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   postgres:
     image: pgvector/pgvector:pg16

@@ -20,6 +20,9 @@ class Settings(BaseSettings):
         default="change-me-mcp-internal-token",
         alias="MCP_INTERNAL_API_TOKEN",
     )
+    redis_url: str = Field(default="redis://redis:6379/0", alias="REDIS_URL")
+    celery_broker_url: str = Field(default="redis://redis:6379/0", alias="CELERY_BROKER_URL")
+    celery_task_always_eager: bool = Field(default=False, alias="CELERY_TASK_ALWAYS_EAGER")
     admin_notification_email: str = Field(
         default="admin@example.com",
         alias="ADMIN_NOTIFICATION_EMAIL",

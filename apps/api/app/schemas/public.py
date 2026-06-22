@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from app.core.enums import ChatJobStatus
+
 
 class PublicChatRequest(BaseModel):
     message: str = Field(min_length=1)
@@ -21,6 +23,22 @@ class PublicChatResponse(BaseModel):
     refused: bool
     grounded: bool
     sources: list[PublicSourceSummary] = Field(default_factory=list)
+
+
+class PublicChatJobCreateResponse(BaseModel):
+    job_id: str
+    conversation_id: int
+    session_id: str
+    status: ChatJobStatus
+
+
+class PublicChatJobStatusResponse(BaseModel):
+    job_id: str
+    conversation_id: int
+    session_id: str
+    status: ChatJobStatus
+    response: PublicChatResponse | None = None
+    error_message: str | None = None
 
 
 class PublicSettingsResponse(BaseModel):

@@ -76,6 +76,13 @@ class ToolCallStatus(StrEnum):
     FAILED = "failed"
 
 
+class ChatJobStatus(StrEnum):
+    QUEUED = "queued"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 class UnansweredPromptReason(StrEnum):
     NO_CONTEXT = "no_context"
     BELOW_THRESHOLD = "below_threshold"

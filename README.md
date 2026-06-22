@@ -2,14 +2,14 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, and the public chat/settings API contract are in place; public UI remains planned.
+The project is in early implementation. Admin auth, settings, legal backend, profile/career records CRUD, document ingestion, hybrid retrieval, a grounded LangGraph agent, internal MCP lead/email workflows, and the public async chat/settings API contract are in place; public UI remains planned.
 
 ## What This Is
 
 ICP is not a generic chatbot over a CV. The goal is a controlled, admin-managed AI career assistant with:
 
 - Public chat for career, skills, projects, leadership, language, availability, and role-fit questions.
-- Strict RAG over public records and document chunks only.
+- Hybrid retrieval over public structured records and public document chunks only.
 - Admin-managed knowledge base with visibility controls.
 - Document ingestion, chunking, embeddings, and retrieval logs.
 - Full public conversation logging.
@@ -33,18 +33,21 @@ ICP is not a generic chatbot over a CV. The goal is a controlled, admin-managed 
 - Backend API: Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic, psycopg
 - Agent: LangGraph with provider-agnostic LLM adapters
 - Retrieval: custom application retriever, PostgreSQL, pgvector
+- Background jobs: Celery worker with Redis broker
 - MCP: FastMCP internal tool server
 - Storage: local and S3-compatible drivers
 - Email: SMTP, with Mailpit for local development (`docker compose --profile mail up`)
 
 ## Local Development Target
 
-The MVP must run locally through Docker Compose. Each runtime service should have its own Docker image/container:
+The MVP must run locally through Docker Compose. Each runtime service should have its own container; the Celery worker intentionally reuses the API image:
 
 - `ui`
 - `api`
+- `worker`
 - `mcp`
 - `postgres`
+- `redis`
 - optional `mailpit`
 - optional reverse proxy
 
@@ -54,6 +57,7 @@ Planned local URLs:
 - API: `http://localhost:8000`
 - MCP: `http://localhost:8100`
 - OpenAPI: `http://localhost:8000/docs`
+- Redis broker: `localhost:6379` for local access when needed
 
 ## Local Bootstrap
 
@@ -81,11 +85,13 @@ docker compose --profile mail up --build
 - API health: `http://localhost:8000/health` (includes API version and DB status)
 - OpenAPI docs: `http://localhost:8000/docs`
 - MCP health: `http://localhost:8100/health`
+- Redis health: `docker compose exec redis redis-cli ping`
+- Worker process: `docker compose ps worker`
 - Mailpit UI (when enabled): `http://localhost:8025`
 
 ## API Backend
 
-The API container runs migrations on startup, then starts FastAPI with Uvicorn.
+The API container runs migrations on startup, then starts FastAPI with Uvicorn. The Celery `worker` service uses the same API image/module code and processes public chat jobs from Redis. Job status and final public-safe responses are stored in Postgres `chat_jobs`; Redis is only the broker.
 
 Run backend tests:
 
@@ -117,6 +123,7 @@ Public endpoints:
 
 - `GET /api/public/settings`
 - `POST /api/public/chat`
+- `GET /api/public/chat/jobs/{job_id}`
 - `GET /api/public/privacy`
 - `GET /api/public/terms`
 
@@ -163,11 +170,18 @@ Admin endpoints (require auth cookie):
 
 Hybrid retrieval (ICP-013): public `profile_items` and `career_records` are selected deterministically as canonical facts. Public `document_chunks` with ready embeddings are searched through pgvector as supporting evidence. Structured records take precedence when sources conflict. Admin debug retrieval persists retrieval logs, source items, and unanswered prompts for later agent and admin UI work.
 
-Grounded agent (ICP-014): LangGraph workflow runs policy checks, hybrid retrieval, grounded answer generation, and grounding verification. Salary and phone/contact questions are refused deterministically. Conversations and messages are persisted. Admin debug agent endpoint validates the workflow before ICP-016 public chat. Public chat/retrieval endpoints remain deferred to ICP-016. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
+Grounded agent (ICP-014): LangGraph workflow runs policy checks, hybrid retrieval, grounded answer generation, and grounding verification. Salary and phone/contact questions are refused deterministically. Conversations and messages are persisted. Admin debug agent endpoint validates the workflow, and the public chat API now invokes it through persisted Celery-backed jobs. Career records also support optional `record_type` filtering. Document uploads default to `draft` visibility and are limited to 10 MB.
 
 Internal MCP and email workflows (ICP-015): the `mcp` service runs FastMCP with HTTP tool bridge endpoints. The API agent calls MCP tools for meeting requests, follow-up questions, job submissions, CV/profile recommendations, skill evidence, and project case studies. Lead records persist in Postgres and plain-text notification emails go through SMTP/Mailpit. Internal MCP API routes under `/api/internal/mcp/*` are protected by `X-MCP-Internal-Token` and are not public. Configure `ADMIN_NOTIFICATION_EMAIL`, `MCP_INTERNAL_API_TOKEN`, and SMTP settings in `.env`.
 
-Public API and chat contract (ICP-016): `POST /api/public/chat` invokes the grounded agent without authentication. Clients must send a `session_id`; optional `conversation_id` may continue a thread only when it belongs to that session. Responses include assistant text, language, refusal/grounding flags, and source-safe labels (`source_type`, `title` only). Internal retrieval log ids, unanswered prompt ids, source ids, snippets, and scores are not exposed. `GET /api/public/settings` returns minimal app metadata for the UI shell.
+Public API and chat contract (ICP-016/ICP-016A): `POST /api/public/chat` validates the public session/conversation, creates a persisted chat job, dispatches grounded agent execution through Celery with Redis as broker, and returns `job_id`, `conversation_id`, `session_id`, and status. Clients poll `GET /api/public/chat/jobs/{job_id}?session_id=...` until the job is `completed` or `failed`. Completed jobs include assistant text, language, refusal/grounding flags, and source-safe labels (`source_type`, `title` only). Internal retrieval log ids, unanswered prompt ids, source ids, snippets, scores, and internal failure details are not exposed. `GET /api/public/settings` returns minimal app metadata for the UI shell.
+
+Public chat job statuses:
+
+- `queued` - API accepted the message and enqueued Celery work.
+- `processing` - worker picked up the job and is running the agent.
+- `completed` - final source-safe response is available on the polling endpoint.
+- `failed` - processing failed; polling returns a generic public error message.
 
 Supported upload types: PDF, DOCX, TXT, Markdown. Custom pasted text is also supported.
 
@@ -177,7 +191,7 @@ Current API version is stored in `system_metadata.api_version` and exposed on `G
 
 ```text
 apps/
-  api/      FastAPI backend foundation
+  api/      FastAPI backend foundation and Celery worker module
   mcp/      internal FastMCP tool server
   ui/       Quasar UI placeholder
 packages/
@@ -201,6 +215,7 @@ The local Docker MVP is planned as these implementation tasks:
 7. Add LLM adapter and LangGraph agent. **Done**
 8. Add internal MCP tools and email workflows. **Done**
 9. Add public API and chat contract. **Done**
+9a. Convert public chat to async job polling with Celery/Redis. **Done**
 10. Add UI shell, routing, i18n, and API client.
 11. Add public chat, legal, and lead UX.
 12. Add admin UI for MVP workflows.
@@ -208,7 +223,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.8`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.10`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 

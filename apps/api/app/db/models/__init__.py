@@ -1,4 +1,5 @@
 from app.db.models.career_record import CareerRecord
+from app.db.models.chat_job import ChatJob
 from app.db.models.conversation import Conversation, Message, ToolCall
 from app.db.models.document import Document, DocumentChunk
 from app.db.models.lead import FollowUpRequest, JobSubmission, MeetingRequest
@@ -11,6 +12,7 @@ from app.db.models.user import User
 
 __all__ = [
     "CareerRecord",
+    "ChatJob",
     "Conversation",
     "Document",
     "DocumentChunk",

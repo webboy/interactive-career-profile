@@ -10,7 +10,7 @@ from app.db.models.legal_page import LegalPage
 from app.db.models.setting import Setting
 from app.db.models.system_metadata import SystemMetadata
 from app.db.models.user import User
-from app.db.session import get_db_session
+from app.db.session import get_db_session, get_db_session_factory
 from app.main import create_app
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -72,7 +72,11 @@ async def client(db_engine) -> AsyncClient:
         async with session_factory() as session:
             yield session
 
+    def override_get_db_session_factory():
+        return session_factory
+
     app.dependency_overrides[get_db_session] = override_get_db_session
+    app.dependency_overrides[get_db_session_factory] = override_get_db_session_factory
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as test_client:

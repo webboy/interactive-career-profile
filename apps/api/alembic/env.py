@@ -5,7 +5,19 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
 from app.db.base import Base
-from app.db.models import career_record, conversation, document, lead, legal_page, profile_item, retrieval_log, setting, system_metadata, user  # noqa: F401
+from app.db.models import (  # noqa: F401
+    career_record,
+    chat_job,
+    conversation,
+    document,
+    lead,
+    legal_page,
+    profile_item,
+    retrieval_log,
+    setting,
+    system_metadata,
+    user,
+)
 
 config = context.config
 
