@@ -2,7 +2,7 @@
 
 Interactive Career Profile (ICP) is a planned self-hosted, open-source AI career profile for one candidate/profile owner. It turns a static CV or portfolio into a grounded AI assistant that recruiters, hiring managers, CTOs, founders, and technical evaluators can query about verified career data.
 
-The project is in early implementation. Admin auth, settings storage, and Privacy/Terms backend are in place on top of the FastAPI foundation; profile records, RAG, MCP tools, and UI remain planned.
+The project is in early implementation. Admin auth, settings, legal backend, and profile/career records CRUD are in place on top of the FastAPI foundation; RAG, MCP tools, and UI remain planned.
 
 ## What This Is
 
@@ -124,6 +124,18 @@ Admin endpoints (require auth cookie):
 - `PUT /api/admin/settings/{key}`
 - `GET /api/admin/legal-pages/{slug}`
 - `PUT /api/admin/legal-pages/{slug}`
+- `GET /api/admin/profile-items`
+- `POST /api/admin/profile-items`
+- `GET /api/admin/profile-items/{id}`
+- `PUT /api/admin/profile-items/{id}`
+- `DELETE /api/admin/profile-items/{id}`
+- `GET /api/admin/career-records`
+- `POST /api/admin/career-records`
+- `GET /api/admin/career-records/{id}`
+- `PUT /api/admin/career-records/{id}`
+- `DELETE /api/admin/career-records/{id}`
+
+Admin list endpoints support optional `visibility` filtering. Career records also support optional `record_type` filtering.
 
 Current API version is stored in `system_metadata.api_version` and exposed on `GET /health`.
 
@@ -149,7 +161,7 @@ The local Docker MVP is planned as these implementation tasks:
 1. Bootstrap monorepo and Docker Compose stack. **Done**
 2. Add backend foundation, config, database, Alembic, pgvector, and API versioning. **Done**
 3. Add admin auth, settings, and legal backend. **Done**
-4. Add profile and career records backend.
+4. Add profile and career records backend. **Done**
 5. Add file storage and document ingestion.
 6. Add embeddings, custom retrieval, and logging.
 7. Add LLM adapter and LangGraph agent.
@@ -162,7 +174,7 @@ The local Docker MVP is planned as these implementation tasks:
 
 ## Versioning
 
-The backend/API owns the application version. The current API version is `0.0.2`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
+The backend/API owns the application version. The current API version is `0.0.3`, exposed on `GET /health`. Every project change should bump the smallest semantic version increment, normally a patch bump.
 
 Version storage is implemented in the API backend (`system_metadata.api_version`).
 
